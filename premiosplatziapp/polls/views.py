@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import Question, Choice
 from django.views import generic
+from django.utils import timezone
 
 """
 def index(request):
@@ -29,11 +30,15 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         """Devuelve las ultimas 5"""
-        return Question.objects.order_by("-pub_dat")[:5]
+        return Question.objects.filter(pub_dat__lte=timezone.now()).order_by("-pub_dat")[:5]
     
 class DetailView(generic.DetailView):
     model = Question
     template_name = "polls/detail.html"
+
+    def get_queryset(self):
+        """Exclude any question that aret published yet"""
+        return Question.objects.filter(pub_dat__lte=timezone.now())
 
 class ResultView(generic.DetailView):
     model = Question
